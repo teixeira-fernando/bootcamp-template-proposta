@@ -49,12 +49,15 @@ public class PropostaController {
 
     logger.info("Criando uma nova proposta correspondente ao: {}", proposta.getNome());
 
-    // Create a new proposta
-    Proposta newProposta = service.createProposta(proposta);
-
     try {
+      // Create a new proposta
+      Proposta newProposta = service.createProposta(proposta);
       // Build a created response
       return ResponseEntity.created(new URI("/proposta/" + newProposta.getId())).body(newProposta);
+    } catch (javax.persistence.EntityNotFoundException e) {
+      logger.info(
+          "Já existe uma proposta aberta para o mesmo documento: {}", proposta.getDocumento());
+      return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
