@@ -2,6 +2,8 @@ package br.com.zup.bootcamp.proposta.model;
 
 import java.math.BigDecimal;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -9,6 +11,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
+import org.springframework.util.Assert;
 
 @Entity
 public class Proposta {
@@ -22,8 +25,11 @@ public class Proposta {
   @NotNull @NotBlank private String nome;
   @NotNull @NotBlank private String endereco;
   @NotNull @PositiveOrZero private BigDecimal salario;
+  @NotNull @Enumerated(value = EnumType.STRING) private StatusProposta statusAvaliacao;
 
-  public Proposta() {}
+  public Proposta() {
+    this.statusAvaliacao = StatusProposta.NAO_ELEGIVEL;
+  }
 
   public Proposta(
       String documento, String email, String nome, String endereco, BigDecimal salario) {
@@ -32,6 +38,7 @@ public class Proposta {
     this.nome = nome;
     this.endereco = endereco;
     this.salario = salario;
+    this.statusAvaliacao = StatusProposta.NAO_ELEGIVEL;
   }
 
   public Proposta(
@@ -42,6 +49,7 @@ public class Proposta {
     this.nome = nome;
     this.endereco = endereco;
     this.salario = salario;
+    this.statusAvaliacao = StatusProposta.NAO_ELEGIVEL;
   }
 
   public Long getId() {
@@ -86,5 +94,10 @@ public class Proposta {
 
   public void setSalario(BigDecimal salario) {
     this.salario = salario;
+  }
+
+  public void atualizaStatus(StatusAnalise resultadoSolicitacao) {
+    Assert.isTrue(this.statusAvaliacao.equals(StatusProposta.NAO_ELEGIVEL), "uma vez que a proposta é elegível não pode mais trocar");
+    this.statusAvaliacao = resultadoSolicitacao == StatusAnalise.SEM_RESTRICAO ? StatusProposta.ELEGIVEL : StatusProposta.NAO_ELEGIVEL;
   }
 }
